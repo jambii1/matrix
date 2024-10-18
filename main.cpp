@@ -26,6 +26,7 @@ int main()
   if (!std::cin)
   {
     std::cerr << "Incorrect input\n";
+    clean(table, m);
     return 1;
   }
   write(table, m, n);
