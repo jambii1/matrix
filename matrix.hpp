@@ -3,9 +3,28 @@
 
 #include <cstddef>
 
-int **create(size_t m, size_t n);
-void read(int **table, size_t m, size_t n);
-void write(const int * const *table, size_t m, size_t n);
-void clean(int **table, size_t m);
+void clear(int **matrix, size_t rowsNumber);
+int **alloc(size_t rowsNumber, size_t columnsNumber);
+void input(int **matrix, size_t rowsNumber, size_t columnsNumber);
+void print(const int * const *matrix, size_t rowsNumber, size_t columnsNumber);
+
+
+struct Matrix
+{
+  explicit Matrix(size_t rowsNumber, size_t columnsNumber);
+  Matrix(const Matrix &other);
+  ~Matrix();
+
+  void input();
+  void print();
+  size_t getRowsNumber() const;
+  size_t getColumnsNumber() const;
+  void fill(int n);
+  void resize(size_t newRowsNumber, size_t newColumnsNumber);
+
+private:
+  int **matrix_;
+  size_t rowsNumber_, columnsNumber_;
+};
 
 #endif

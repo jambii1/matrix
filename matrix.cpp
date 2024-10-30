@@ -2,54 +2,133 @@
 #include <iostream>
 #include <exception>
 
-int **create(size_t m, size_t n)
+void clear(int **matrix, size_t rowsNumber)
 {
-  int **table = new int *[m];
+  for (size_t i = 0; i < rowsNumber; ++i)
+  {
+    delete[] matrix[i];
+  }
+  delete[] matrix;
+}
+
+int **alloc(size_t rowsNumber, size_t columnsNumber)
+{
+  int **matrix = new int *[rowsNumber];
   size_t created = 0;
   try
   {
-    for (; created < m; ++created)
+    for (; created < rowsNumber; ++created)
     {
-      table[created] = new int[n];
+      matrix[created] = new int[columnsNumber];
     }
   }
   catch (const std::bad_alloc &e)
   {
-    clean(table, created);
+    clear(matrix, created);
     throw;
   }
-  return table;
+  return matrix;
 }
 
-void read(int **table, size_t m, size_t n)
+void input(int **matrix, size_t rowsNumber, size_t columnsNumber)
 {
-  for (size_t i = 0; i < m; ++i)
+  for (size_t i = 0; i < rowsNumber; ++i)
   {
-    for (size_t j = 0; j < n; ++j)
+    for (size_t j = 0; j < columnsNumber; ++j)
     {
-      std::cin >> table[i][j];
+      std::cin >> matrix[i][j];
     }
   }
 }
 
-void write(const int * const *table, size_t m, size_t n)
+void print(const int * const *matrix, size_t rowsNumber, size_t columnsNumber)
 {
-  for (size_t i = 0; i < m; ++i)
+  for (size_t i = 0; i < rowsNumber; ++i)
   {
-    std::cout << table[i][0];
-    for (size_t j = 1; j < n; ++j)
+    std::cout << matrix[i][0];
+    for (size_t j = 1; j < columnsNumber; ++j)
     {
-      std::cout << ' ' << table[i][j];
+      std::cout << ' ' << matrix[i][j];
     }
     std::cout << '\n';
   }
 }
 
-void clean(int **table, size_t m)
+Matrix::Matrix(size_t rowsNumber, size_t columnsNumber):
+  matrix_(::alloc(rowsNumber, columnsNumber)),
+  rowsNumber_(rowsNumber),
+  columnsNumber_(columnsNumber)
+{}
+
+Matrix::Matrix(const Matrix &other):
+  matrix_(other.matrix_),
+  rowsNumber_(other.rowsNumber_),
+  columnsNumber_(other.columnsNumber_)
 {
-  for (size_t i = 0; i < m; ++i)
+  for (size_t i = 0; i < rowsNumber_; ++i)
   {
-    delete[] table[i];
+    for (size_t j = 0; j < columnsNumber_; ++j)
+    {
+      matrix_[i][j] = other.matrix_[i][j];
+    }
   }
-  delete[] table;
+}
+
+Matrix::~Matrix()
+{
+  ::clear(matrix_, rowsNumber_);
+}
+
+void Matrix::input()
+{
+  ::input(matrix_, rowsNumber_, columnsNumber_);
+}
+
+void Matrix::print()
+{
+  ::print(matrix_, rowsNumber_, columnsNumber_);
+}
+
+size_t Matrix::getRowsNumber() const
+{
+  return rowsNumber_;
+}
+
+size_t Matrix::getColumnsNumber() const
+{
+  return columnsNumber_;
+}
+
+void Matrix::fill(int n)
+{
+  for (size_t i = 0; i < rowsNumber_; ++i)
+  {
+    for (size_t j = 0; j < columnsNumber_; ++j)
+    {
+      matrix_[i][j] = n;
+    }
+  }
+}
+
+void Matrix::resize(size_t newRowsNumber, size_t newColumnsNumber)
+{
+  if ((newRowsNumber != rowsNumber_) || (newColumnsNumber != columnsNumber_))
+  {
+    Matrix resizedMatrix(newRowsNumber, newColumnsNumber);
+    size_t rowBorder = newRowsNumber > rowsNumber_ ? rowsNumber_ : newRowsNumber;
+    size_t columnBorder = newColumnsNumber > columnsNumber_ ? columnsNumber_ : newColumnsNumber;
+
+    for (size_t i = 0; i < rowBorder; ++i)
+    {
+      for (size_t j = 0; j < columnBorder; ++j)
+      {
+        resizedMatrix.matrix_[i][j] = matrix_[i][j];
+      }
+    }
+
+    ::clear(matrix_, rowsNumber_);
+    matrix_ = resizedMatrix.matrix_;
+    rowsNumber_ = newRowsNumber;
+    columnsNumber_ = newColumnsNumber;
+  }
 }

@@ -4,32 +4,20 @@
 
 int main()
 {
-  size_t m = 0, n = 0;
-  std::cin >> m >> n;
+  size_t rowsNumber = 0, columnsNumber = 0;
+  if (!(std::cin >> rowsNumber >> columnsNumber))
+  {
+    std::cerr << "Incorrect input\n";
+    return 1;
+  }
+  Matrix table(rowsNumber, columnsNumber);
+
+  table.input();
   if (!std::cin)
   {
     std::cerr << "Incorrect input\n";
     return 1;
   }
-  int **table = nullptr;
-  try
-  {
-    table = create(m, n);
-  }
-  catch (const std::bad_alloc &e)
-  {
-    std::cerr << "Out of memory\n";
-    return 1;
-  }
 
-  read(table, m, n);
-  if (!std::cin)
-  {
-    std::cerr << "Incorrect input\n";
-    clean(table, m);
-    return 1;
-  }
-  write(table, m, n);
-
-  clean(table, m);
+  table.print();
 }
