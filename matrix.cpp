@@ -2,27 +2,27 @@
 #include <iostream>
 #include <exception>
 
-void clear(int **matrix, size_t rowsNumber)
+void clear(int ** matrix, size_t nRows)
 {
-  for (size_t i = 0; i < rowsNumber; ++i)
+  for (size_t i = 0; i < nRows; ++i)
   {
     delete[] matrix[i];
   }
   delete[] matrix;
 }
 
-int **alloc(size_t rowsNumber, size_t columnsNumber)
+int ** alloc(size_t nRows, size_t nColumns)
 {
-  int **matrix = new int *[rowsNumber];
+  int ** matrix = new int * [nRows];
   size_t created = 0;
   try
   {
-    for (; created < rowsNumber; ++created)
+    for (; created < nRows; ++created)
     {
-      matrix[created] = new int[columnsNumber];
+      matrix[created] = new int[nColumns];
     }
   }
-  catch (const std::bad_alloc &e)
+  catch (const std::bad_alloc & e)
   {
     clear(matrix, created);
     throw;
@@ -30,44 +30,44 @@ int **alloc(size_t rowsNumber, size_t columnsNumber)
   return matrix;
 }
 
-void input(int **matrix, size_t rowsNumber, size_t columnsNumber)
+void input(std::istream & in, int ** matrix, size_t nRows, size_t nColumns)
 {
-  for (size_t i = 0; i < rowsNumber; ++i)
+  for (size_t i = 0; i < nRows; ++i)
   {
-    for (size_t j = 0; j < columnsNumber; ++j)
+    for (size_t j = 0; j < nColumns; ++j)
     {
-      std::cin >> matrix[i][j];
+      in >> matrix[i][j];
     }
   }
 }
 
-void print(const int * const *matrix, size_t rowsNumber, size_t columnsNumber)
+void print(std::ostream & out, int * const * matrix, size_t nRows, size_t nColumns)
 {
-  for (size_t i = 0; i < rowsNumber; ++i)
+  for (size_t i = 0; i < nRows; ++i)
   {
-    std::cout << matrix[i][0];
-    for (size_t j = 1; j < columnsNumber; ++j)
+    out << matrix[i][0];
+    for (size_t j = 1; j < nColumns; ++j)
     {
-      std::cout << ' ' << matrix[i][j];
+      out << ' ' << matrix[i][j];
     }
-    std::cout << '\n';
+    out << '\n';
   }
 }
 
-Matrix::Matrix(size_t rowsNumber, size_t columnsNumber):
-  matrix_(::alloc(rowsNumber, columnsNumber)),
-  rowsNumber_(rowsNumber),
-  columnsNumber_(columnsNumber)
+Matrix::Matrix(size_t rowsNumber, size_t nColumns):
+  matrix_(::alloc(rowsNumber, nColumns)),
+  nRows_(rowsNumber),
+  nColumns_(nColumns)
 {}
 
-Matrix::Matrix(const Matrix &other):
+Matrix::Matrix(const Matrix & other):
   matrix_(other.matrix_),
-  rowsNumber_(other.rowsNumber_),
-  columnsNumber_(other.columnsNumber_)
+  nRows_(other.nRows_),
+  nColumns_(other.nColumns_)
 {
-  for (size_t i = 0; i < rowsNumber_; ++i)
+  for (size_t i = 0; i < nRows_; ++i)
   {
-    for (size_t j = 0; j < columnsNumber_; ++j)
+    for (size_t j = 0; j < nColumns_; ++j)
     {
       matrix_[i][j] = other.matrix_[i][j];
     }
@@ -76,47 +76,48 @@ Matrix::Matrix(const Matrix &other):
 
 Matrix::~Matrix()
 {
-  ::clear(matrix_, rowsNumber_);
+  ::clear(matrix_, nRows_);
 }
 
-void Matrix::input()
+void Matrix::input(std::istream & in)
 {
-  ::input(matrix_, rowsNumber_, columnsNumber_);
+  ::input(in, matrix_, nRows_, nColumns_);
 }
 
-void Matrix::print()
+void Matrix::print(std::ostream & out)
 {
-  ::print(matrix_, rowsNumber_, columnsNumber_);
+  ::print(out, matrix_, nRows_, nColumns_);
 }
 
 size_t Matrix::getRowsNumber() const
 {
-  return rowsNumber_;
+  return nRows_;
 }
 
 size_t Matrix::getColumnsNumber() const
 {
-  return columnsNumber_;
+  return nColumns_;
 }
 
 void Matrix::fill(int n)
 {
-  for (size_t i = 0; i < rowsNumber_; ++i)
+  for (size_t i = 0; i < nRows_; ++i)
   {
-    for (size_t j = 0; j < columnsNumber_; ++j)
+    for (size_t j = 0; j < nColumns_; ++j)
     {
       matrix_[i][j] = n;
     }
   }
 }
 
-void Matrix::resize(size_t newRowsNumber, size_t newColumnsNumber)
+void Matrix::resize(size_t newNRows, size_t newNColumns)
 {
-  if ((newRowsNumber != rowsNumber_) || (newColumnsNumber != columnsNumber_))
+  if ((newNRows != nRows_) || (newNColumns != nColumns_))
   {
-    Matrix resizedMatrix(newRowsNumber, newColumnsNumber);
-    size_t rowBorder = newRowsNumber > rowsNumber_ ? rowsNumber_ : newRowsNumber;
-    size_t columnBorder = newColumnsNumber > columnsNumber_ ? columnsNumber_ : newColumnsNumber;
+    Matrix resizedMatrix(newNRows, newNColumns);
+    resizedMatrix.fill(0);
+    size_t rowBorder = newNRows > nRows_ ? nRows_ : newNRows;
+    size_t columnBorder = newNColumns > nColumns_ ? nColumns_ : newNColumns;
 
     for (size_t i = 0; i < rowBorder; ++i)
     {
@@ -126,9 +127,9 @@ void Matrix::resize(size_t newRowsNumber, size_t newColumnsNumber)
       }
     }
 
-    ::clear(matrix_, rowsNumber_);
+    ::clear(matrix_, nRows_);
     matrix_ = resizedMatrix.matrix_;
-    rowsNumber_ = newRowsNumber;
-    columnsNumber_ = newColumnsNumber;
+    nRows_ = newNRows;
+    nColumns_ = newNColumns;
   }
 }

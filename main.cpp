@@ -1,23 +1,23 @@
-#include "matrix.hpp"
 #include <iostream>
 #include <exception>
+#include "matrix.hpp"
 
 int main()
 {
-  size_t rowsNumber = 0, columnsNumber = 0;
-  if (!(std::cin >> rowsNumber >> columnsNumber))
+  size_t nRows = 0, nColumns = 0;
+  if (!(std::cin >> nRows >> nColumns))
   {
     std::cerr << "Incorrect input\n";
     return 1;
   }
-  Matrix table(rowsNumber, columnsNumber);
+  Matrix table(nRows, nColumns);
 
-  table.input();
+  table.input(std::cin);
   if (!std::cin)
   {
     std::cerr << "Incorrect input\n";
     return 1;
   }
 
-  table.print();
+  table.print(std::cout);
 }
