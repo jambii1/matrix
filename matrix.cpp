@@ -2,7 +2,7 @@
 #include <iostream>
 #include <exception>
 
-void clear(int ** matrix, size_t nRows)
+void clear(int **matrix, size_t nRows)
 {
   for (size_t i = 0; i < nRows; ++i)
   {
@@ -11,9 +11,9 @@ void clear(int ** matrix, size_t nRows)
   delete[] matrix;
 }
 
-int ** alloc(size_t nRows, size_t nColumns)
+int **alloc(size_t nRows, size_t nColumns)
 {
-  int ** matrix = new int * [nRows];
+  int **matrix = new int *[nRows];
   size_t created = 0;
   try
   {
@@ -22,7 +22,7 @@ int ** alloc(size_t nRows, size_t nColumns)
       matrix[created] = new int[nColumns];
     }
   }
-  catch (const std::bad_alloc & e)
+  catch (const std::bad_alloc &e)
   {
     clear(matrix, created);
     throw;
@@ -30,7 +30,7 @@ int ** alloc(size_t nRows, size_t nColumns)
   return matrix;
 }
 
-void input(std::istream & in, int ** matrix, size_t nRows, size_t nColumns)
+void input(std::istream &in, int **matrix, size_t nRows, size_t nColumns)
 {
   for (size_t i = 0; i < nRows; ++i)
   {
@@ -41,7 +41,7 @@ void input(std::istream & in, int ** matrix, size_t nRows, size_t nColumns)
   }
 }
 
-void print(std::ostream & out, int * const * matrix, size_t nRows, size_t nColumns)
+void print(std::ostream &out, int *const *matrix, size_t nRows, size_t nColumns)
 {
   for (size_t i = 0; i < nRows; ++i)
   {
@@ -60,7 +60,7 @@ Matrix::Matrix(size_t rowsNumber, size_t nColumns):
   nColumns_(nColumns)
 {}
 
-Matrix::Matrix(const Matrix & other):
+Matrix::Matrix(const Matrix &other):
   matrix_(other.matrix_),
   nRows_(other.nRows_),
   nColumns_(other.nColumns_)
@@ -79,12 +79,12 @@ Matrix::~Matrix()
   ::clear(matrix_, nRows_);
 }
 
-void Matrix::input(std::istream & in)
+void Matrix::input(std::istream &in)
 {
   ::input(in, matrix_, nRows_, nColumns_);
 }
 
-void Matrix::print(std::ostream & out)
+void Matrix::print(std::ostream &out)
 {
   ::print(out, matrix_, nRows_, nColumns_);
 }
