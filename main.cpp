@@ -20,4 +20,6 @@ int main()
   }
 
   table.print(std::cout);
+  table.resize(2, 2);
+  table.print(std::cout);
 }

@@ -1,6 +1,7 @@
 #include "matrix.hpp"
 #include <iostream>
 #include <exception>
+#include <algorithm>
 
 void clear(int **matrix, size_t nRows)
 {
@@ -110,12 +111,18 @@ void Matrix::fill(int n)
   }
 }
 
+void Matrix::swap(Matrix &other)
+{
+  std::swap(matrix_, other.matrix_);
+  std::swap(nRows_, other.nRows_);
+  std::swap(nColumns_, other.nColumns_);
+}
+
 void Matrix::resize(size_t newNRows, size_t newNColumns)
 {
   if ((newNRows != nRows_) || (newNColumns != nColumns_))
   {
     Matrix resizedMatrix(newNRows, newNColumns);
-    resizedMatrix.fill(0);
     size_t rowBorder = newNRows > nRows_ ? nRows_ : newNRows;
     size_t columnBorder = newNColumns > nColumns_ ? nColumns_ : newNColumns;
 
@@ -127,9 +134,6 @@ void Matrix::resize(size_t newNRows, size_t newNColumns)
       }
     }
 
-    ::clear(matrix_, nRows_);
-    matrix_ = resizedMatrix.matrix_;
-    nRows_ = newNRows;
-    nColumns_ = newNColumns;
+    swap(resizedMatrix);
   }
 }

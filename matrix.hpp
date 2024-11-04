@@ -20,6 +20,7 @@ struct Matrix
   size_t getRowsNumber() const;
   size_t getColumnsNumber() const;
   void fill(int n);
+  void swap(Matrix &other);
   void resize(size_t newNRows, size_t newNColumns);
 
 private:
