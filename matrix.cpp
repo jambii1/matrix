@@ -1,139 +1,152 @@
 #include "matrix.hpp"
-#include <iostream>
-#include <exception>
 #include <algorithm>
+#include <exception>
 
-void clear(int **matrix, size_t nRows)
+void math::clear(int** matrix, std::size_t rows)
 {
-  for (size_t i = 0; i < nRows; ++i)
-  {
+  for (std::size_t i = 0; i < rows; ++i) {
     delete[] matrix[i];
   }
   delete[] matrix;
 }
 
-int **alloc(size_t nRows, size_t nColumns)
+int** math::alloc(std::size_t rows, std::size_t cols)
 {
-  int **matrix = new int *[nRows];
-  size_t created = 0;
-  try
-  {
-    for (; created < nRows; ++created)
-    {
-      matrix[created] = new int[nColumns];
+  int** matrix = new int*[rows];
+  std::size_t created = 0;
+  try {
+    for (; created < rows; ++created) {
+      matrix[created] = new int[cols];
     }
-  }
-  catch (const std::bad_alloc &e)
-  {
+  } catch (const std::bad_alloc& e) {
     clear(matrix, created);
     throw;
   }
   return matrix;
 }
 
-void input(std::istream &in, int **matrix, size_t nRows, size_t nColumns)
+void math::input(std::istream& in, int** matrix, std::size_t rows, std::size_t cols)
 {
-  for (size_t i = 0; i < nRows; ++i)
-  {
-    for (size_t j = 0; j < nColumns; ++j)
-    {
+  for (std::size_t i = 0; i < rows; ++i) {
+    for (std::size_t j = 0; j < cols; ++j) {
       in >> matrix[i][j];
     }
   }
 }
 
-void print(std::ostream &out, int *const *matrix, size_t nRows, size_t nColumns)
+void math::print(std::ostream& out, const int* const* matrix, std::size_t rows, std::size_t cols)
 {
-  for (size_t i = 0; i < nRows; ++i)
-  {
+  for (std::size_t i = 0; i < rows; ++i) {
     out << matrix[i][0];
-    for (size_t j = 1; j < nColumns; ++j)
-    {
+    for (std::size_t j = 1; j < cols; ++j) {
       out << ' ' << matrix[i][j];
     }
     out << '\n';
   }
 }
 
-Matrix::Matrix(size_t rowsNumber, size_t nColumns):
-  matrix_(::alloc(rowsNumber, nColumns)),
-  nRows_(rowsNumber),
-  nColumns_(nColumns)
+void math::copy(const int* const* data, std::size_t rows, std::size_t cols, int* const* matrix)
+{
+  for (std::size_t i = 0; i < rows; ++i) {
+    for (std::size_t j = 0; j < cols; ++j) {
+      matrix[i][j] = data[i][j];
+    }
+  }
+}
+
+math::Matrix::Matrix() noexcept:
+  data_(nullptr),
+  rows_(0),
+  cols_(0)
 {}
 
-Matrix::Matrix(const Matrix &other):
-  matrix_(other.matrix_),
-  nRows_(other.nRows_),
-  nColumns_(other.nColumns_)
+math::Matrix::Matrix(const Matrix& rhs):
+  Matrix(rhs.rows_, rhs.cols_)
 {
-  for (size_t i = 0; i < nRows_; ++i)
-  {
-    for (size_t j = 0; j < nColumns_; ++j)
-    {
-      matrix_[i][j] = other.matrix_[i][j];
+  copy(rhs.data_, rows_, cols_, data_);
+}
+
+math::Matrix::Matrix(std::size_t rows, std::size_t cols):
+  data_(alloc(rows, cols)),
+  rows_(rows),
+  cols_(cols)
+{}
+
+math::Matrix::Matrix(std::size_t rows, std::size_t cols, int value):
+  Matrix(rows, cols)
+{
+  fill(value);
+}
+
+math::Matrix::Matrix(std::size_t rows, std::size_t cols, const int* values):
+  Matrix(rows, cols)
+{
+  fill(values);
+}
+
+math::Matrix::~Matrix()
+{
+  clear(data_, rows_);
+}
+
+void math::Matrix::input(std::istream& in) noexcept
+{
+  math::input(in, data_, rows_, cols_);
+}
+
+void math::Matrix::print(std::ostream& out) noexcept
+{
+  math::print(out, data_, rows_, cols_);
+}
+
+std::size_t math::Matrix::get_rows_number() const noexcept
+{
+  return rows_;
+}
+
+std::size_t math::Matrix::get_columns_number() const noexcept
+{
+  return cols_;
+}
+
+void math::Matrix::fill(int value) noexcept
+{
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      data_[i][j] = value;
     }
   }
 }
 
-Matrix::~Matrix()
+void math::Matrix::fill(const int* values) noexcept
 {
-  ::clear(matrix_, nRows_);
-}
-
-void Matrix::input(std::istream &in)
-{
-  ::input(in, matrix_, nRows_, nColumns_);
-}
-
-void Matrix::print(std::ostream &out)
-{
-  ::print(out, matrix_, nRows_, nColumns_);
-}
-
-size_t Matrix::getRowsNumber() const
-{
-  return nRows_;
-}
-
-size_t Matrix::getColumnsNumber() const
-{
-  return nColumns_;
-}
-
-void Matrix::fill(int n)
-{
-  for (size_t i = 0; i < nRows_; ++i)
-  {
-    for (size_t j = 0; j < nColumns_; ++j)
-    {
-      matrix_[i][j] = n;
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      data_[i][j] = values[i * cols_ + j];
     }
   }
 }
 
-void Matrix::swap(Matrix &other)
+void math::Matrix::swap(Matrix& rhs) noexcept
 {
-  std::swap(matrix_, other.matrix_);
-  std::swap(nRows_, other.nRows_);
-  std::swap(nColumns_, other.nColumns_);
+  std::swap(data_, rhs.data_);
+  std::swap(rows_, rhs.rows_);
+  std::swap(cols_, rhs.cols_);
 }
 
-void Matrix::resize(size_t newNRows, size_t newNColumns)
+void math::Matrix::resize(std::size_t new_rows, std::size_t new_cols)
 {
-  if ((newNRows != nRows_) || (newNColumns != nColumns_))
-  {
-    Matrix resizedMatrix(newNRows, newNColumns);
-    size_t rowBorder = newNRows > nRows_ ? nRows_ : newNRows;
-    size_t columnBorder = newNColumns > nColumns_ ? nColumns_ : newNColumns;
+  if ((new_rows != rows_) || (new_cols != cols_)) {
+    Matrix resized_matrix(new_rows, new_cols, 0);
+    std::size_t row_border = new_rows > rows_ ? rows_ : new_rows;
+    std::size_t column_border = new_cols > cols_ ? cols_ : new_cols;
 
-    for (size_t i = 0; i < rowBorder; ++i)
-    {
-      for (size_t j = 0; j < columnBorder; ++j)
-      {
-        resizedMatrix.matrix_[i][j] = matrix_[i][j];
+    for (std::size_t i = 0; i < row_border; ++i) {
+      for (std::size_t j = 0; j < column_border; ++j) {
+        resized_matrix.data_[i][j] = data_[i][j];
       }
     }
 
-    swap(resizedMatrix);
+    swap(resized_matrix);
   }
 }
