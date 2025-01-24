@@ -4,10 +4,12 @@
 
 void math::clear(int** matrix, std::size_t rows)
 {
-  for (std::size_t i = 0; i < rows; ++i) {
-    delete[] matrix[i];
+  if (matrix != nullptr) {
+    for (std::size_t i = 0; i < rows; ++i) {
+      delete[] matrix[i];
+    }
+    delete[] matrix;
   }
-  delete[] matrix;
 }
 
 int** math::alloc(std::size_t rows, std::size_t cols)
@@ -66,6 +68,14 @@ math::Matrix::Matrix(const Matrix& rhs):
   copy(rhs.data_, rows_, cols_, data_);
 }
 
+math::Matrix::Matrix(Matrix&& rhs) noexcept:
+  data_(rhs.data_),
+  rows_(rhs.rows_),
+  cols_(rhs.cols_)
+{
+  rhs.data_ = nullptr;
+}
+
 math::Matrix::Matrix(std::size_t rows, std::size_t cols):
   data_(alloc(rows, cols)),
   rows_(rows),
@@ -87,6 +97,27 @@ math::Matrix::Matrix(std::size_t rows, std::size_t cols, const int* values):
 math::Matrix::~Matrix()
 {
   clear(data_, rows_);
+}
+
+math::Matrix& math::Matrix::operator=(const Matrix& rhs)
+{
+  int** new_data = alloc(rhs.rows_, rhs.cols_);
+  copy(rhs.data_, rhs.rows_, rhs.cols_, new_data);
+  clear(data_, rows_);
+  data_ = new_data;
+  rows_ = rhs.rows_;
+  cols_ = rhs.cols_;
+  return *this;
+}
+
+math::Matrix& math::Matrix::operator=(Matrix&& rhs) noexcept
+{
+  clear(data_, rows_);
+  data_ = rhs.data_;
+  rhs.data_ = nullptr;
+  rows_ = rhs.rows_;
+  cols_ = rhs.cols_;
+  return *this;
 }
 
 void math::Matrix::input(std::istream& in) noexcept

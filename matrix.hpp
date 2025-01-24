@@ -21,7 +21,7 @@ namespace math
     Matrix(std::size_t rows, std::size_t cols, const int* values);
     ~Matrix();
     Matrix& operator=(const Matrix& rhs);
-    Matrix& operator=(const Matrix&& rhs) noexcept;
+    Matrix& operator=(Matrix&& rhs) noexcept;
 
     void input(std::istream& in) noexcept;
     void print(std::ostream& out) noexcept;
