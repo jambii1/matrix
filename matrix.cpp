@@ -1,8 +1,9 @@
 #include "matrix.hpp"
 #include <algorithm>
 #include <exception>
+#include <cmath>
 
-void math::clear(int** matrix, std::size_t rows)
+void math::clear(int** matrix, std::size_t rows) noexcept
 {
   if (matrix != nullptr) {
     for (std::size_t i = 0; i < rows; ++i) {
@@ -27,7 +28,7 @@ int** math::alloc(std::size_t rows, std::size_t cols)
   return matrix;
 }
 
-void math::input(std::istream& in, int** matrix, std::size_t rows, std::size_t cols)
+void math::input(std::istream& in, int** matrix, std::size_t rows, std::size_t cols) noexcept
 {
   for (std::size_t i = 0; i < rows; ++i) {
     for (std::size_t j = 0; j < cols; ++j) {
@@ -36,7 +37,7 @@ void math::input(std::istream& in, int** matrix, std::size_t rows, std::size_t c
   }
 }
 
-void math::print(std::ostream& out, const int* const* matrix, std::size_t rows, std::size_t cols)
+void math::print(std::ostream& out, const int* const* matrix, std::size_t rows, std::size_t cols) noexcept
 {
   for (std::size_t i = 0; i < rows; ++i) {
     out << matrix[i][0];
@@ -47,7 +48,7 @@ void math::print(std::ostream& out, const int* const* matrix, std::size_t rows, 
   }
 }
 
-void math::copy(const int* const* data, std::size_t rows, std::size_t cols, int* const* matrix)
+void math::copy(const int* const* data, std::size_t rows, std::size_t cols, int* const* matrix) noexcept
 {
   for (std::size_t i = 0; i < rows; ++i) {
     for (std::size_t j = 0; j < cols; ++j) {
@@ -120,6 +121,108 @@ math::Matrix& math::Matrix::operator=(Matrix&& rhs) noexcept
   return *this;
 }
 
+math::Matrix& math::Matrix::operator+() noexcept
+{
+  return *this;
+}
+
+math::Matrix math::Matrix::operator+(const Matrix& rhs) const
+{
+  if (rows_ != rhs.rows_ || cols_ != rhs.cols_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  Matrix result(rows_, cols_, 0);
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      result.data_[i][j] = data_[i][j] + rhs.data_[i][j];
+    }
+  }
+  return result;
+}
+
+math::Matrix& math::Matrix::operator+=(const Matrix& rhs)
+{
+  if (rows_ != rhs.rows_ || cols_ != rhs.cols_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      data_[i][j] += rhs.data_[i][j];
+    }
+  }
+  return *this;
+}
+
+math::Matrix& math::Matrix::operator-() noexcept
+{
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      data_[i][j] = -data_[i][j];
+    }
+  }
+  return *this;
+}
+
+math::Matrix math::Matrix::operator-(const Matrix& rhs) const
+{
+  if (rows_ != rhs.rows_ || cols_ != rhs.cols_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  Matrix result(rows_, cols_, 0);
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      result.data_[i][j] = data_[i][j] - rhs.data_[i][j];
+    }
+  }
+  return result;
+}
+
+math::Matrix& math::Matrix::operator-=(const Matrix& rhs)
+{
+  if (rows_ != rhs.rows_ || cols_ != rhs.cols_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < cols_; ++j) {
+      data_[i][j] -= rhs.data_[i][j];
+    }
+  }
+  return *this;
+}
+
+math::Matrix math::Matrix::operator*(const Matrix& rhs) const
+{
+  if (cols_ != rhs.rows_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  Matrix result(rows_, rhs.cols_, 0);
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < rhs.cols_; ++j) {
+      for (std::size_t k = 0; k < cols_; ++k) {
+        result.data_[i][j] += data_[i][k] * rhs.data_[k][j];
+      }
+    }
+  }
+  return result;
+}
+
+math::Matrix& math::Matrix::operator*=(const Matrix& rhs)
+{
+  if (cols_ != rhs.rows_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  Matrix result(rows_, rhs.cols_, 0);
+  for (std::size_t i = 0; i < rows_; ++i) {
+    for (std::size_t j = 0; j < rhs.cols_; ++j) {
+      for (std::size_t k = 0; k < cols_; ++k) {
+        result.data_[i][j] += data_[i][k] * rhs.data_[k][j];
+      }
+    }
+  }
+  *this = result;
+  return *this;
+}
+
 void math::Matrix::input(std::istream& in) noexcept
 {
   math::input(in, data_, rows_, cols_);
@@ -180,4 +283,45 @@ void math::Matrix::resize(std::size_t new_rows, std::size_t new_cols)
 
     swap(resized_matrix);
   }
+}
+
+void math::Matrix::transpose()
+{
+  Matrix transposed(cols_, rows_, 0);
+  for (std::size_t i = 0; i < cols_; ++i) {
+    for (std::size_t j = 0; j < rows_; ++j) {
+      transposed.data_[i][j] = data_[j][i];
+    }
+  }
+  *this = transposed;
+}
+
+int math::Matrix::get_determinant()
+{
+  if (rows_ != cols_) {
+    throw std::logic_error("incorrect matrix size");
+  }
+  if (rows_ == 1) {
+    return data_[0][0];
+  }
+  if (rows_ == 2) {
+    return data_[0][0] * data_[1][1] - data_[0][1] * data_[1][0];
+  }
+  Matrix sub_matrix(rows_ - 1, cols_ - 1, 0);
+  int determinant = 0;
+  for (std::size_t i = 0; i < rows_; ++i) {
+    std::size_t subi = 0;
+    for (std::size_t j = 1; j < rows_; ++j) {
+      std::size_t subj = 0;
+      for (std::size_t k = 0; k < rows_; ++k) {
+        if (k == i) {
+          continue;
+        }
+        sub_matrix.data_[subi][subj++] = data_[i][j];
+      }
+      ++subi;
+    }
+    determinant += std::pow(-1, i) * data_[0][i] * sub_matrix.get_determinant();
+  }
+  return determinant;
 }
